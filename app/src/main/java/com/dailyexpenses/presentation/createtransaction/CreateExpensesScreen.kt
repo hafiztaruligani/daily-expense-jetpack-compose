@@ -46,6 +46,8 @@ fun CreateExpensesScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
+    Log.d("cr", "CreateExpensesScreen: ${uiState.value.tagList}")
+
     if (uiState.value.needDatePicker) DatePicker(uiState.value, viewModel)
     if (uiState.value.error.isNotBlank())
         Toast.makeText(LocalContext.current, uiState.value.error, Toast.LENGTH_LONG).show()

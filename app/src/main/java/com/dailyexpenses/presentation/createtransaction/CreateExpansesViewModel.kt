@@ -1,5 +1,6 @@
 package com.dailyexpenses.presentation.createtransaction
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dailyexpenses.domain.model.Expenses
@@ -10,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -84,9 +86,11 @@ class CreateExpansesViewModel @Inject constructor(
         else if (list.contains(tag))
             list.remove(tag)
         selectedTag.value = list
+        Log.d(javaClass.simpleName, "setSelectedTag: ${selectedTag.value}")
     }
 
     fun save() = viewModelScope.launch{
+        _uiState.value = uiState.value.copy(selectedTag = selectedTag.value)
         when {
             selectedTag.value.size <= 0 -> error("Select at least 1 Tag")
             uiState.value.amount == "" -> error("Amount cannot 0")
@@ -117,13 +121,14 @@ data class CreateExpansesUiState(
     val year: Int,
     val needDatePicker: Boolean = false,
     val tagList: List<Tag> = listOf(),
+    val selectedTag: List<Tag> = listOf(),
     val error: String = ""
 ) {
     fun getExpenses() = Expenses(
         amount = amount,
         title = title,
         note = note,
-        tagList = tagList,
+        tagList = selectedTag,
         day = day,
         month = month,
         year = year

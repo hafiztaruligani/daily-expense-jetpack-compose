@@ -9,6 +9,8 @@ class ExpensesRepositoryImpl(
     private val expensesDao: ExpensesDao
 ) : ExpensesRepository {
 
+
+
     override suspend fun createExpenses(expenses: Expenses) {
         expensesDao.insertExpenses(expenses.toEntity())
         insertCrossRef(expenses)
