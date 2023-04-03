@@ -115,8 +115,7 @@ fun CreateExpensesScreen(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
-            viewModel.save()
-            onClickClose.invoke()
+            viewModel.save(onClickClose)
         }
     }
 }

@@ -11,7 +11,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -88,7 +87,7 @@ class CreateExpansesViewModel @Inject constructor(
         Log.d(javaClass.simpleName, "setSelectedTag: ${selectedTag.value}")
     }
 
-    fun save() = viewModelScope.launch{
+    fun save(onClickClose: () -> Unit) = viewModelScope.launch{
         _uiState.value = uiState.value.copy(selectedTag = selectedTag.value)
         when {
             selectedTag.value.size <= 0 -> error("Select at least 1 Tag")
@@ -99,6 +98,7 @@ class CreateExpansesViewModel @Inject constructor(
                 expensesRepository.createExpenses(
                     uiState.value.getExpenses()
                 )
+                onClickClose.invoke()
             }
         }
     }

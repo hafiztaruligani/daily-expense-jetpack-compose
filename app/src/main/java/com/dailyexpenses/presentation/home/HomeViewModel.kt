@@ -76,8 +76,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun setSelectedMonth(page: Int){
-        val item = uiState.value.monthList[page]
-        getExpensesByMonth(item.month, item.year)
+        val months = uiState.value.monthList
+        if (months.isNotEmpty()) {
+            val item = months[page]
+            getExpensesByMonth(item.month, item.year)
+        }
     }
 
 
