@@ -28,7 +28,7 @@ class CreateTagViewModel @Inject constructor(
             _uiState.value = uiState.value.copy(close = true)
             tagRepository.createTag(tagName)
             delay(100)
-            _uiState.value = uiState.value.copy(close = false)
+            _uiState.value = uiState.value.copy(close = false, name = "")
         }
     }
 }

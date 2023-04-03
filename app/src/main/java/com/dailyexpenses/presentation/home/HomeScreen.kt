@@ -1,32 +1,42 @@
 package com.dailyexpenses.presentation.home
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dailyexpenses.R
+import com.dailyexpenses.domain.model.Expenses
+import com.dailyexpenses.domain.model.MonthWithYear
+import com.dailyexpenses.formatCurrencies
 import com.dailyexpenses.presentation.createtag.CreateTagScreen
 import com.dailyexpenses.presentation.ui.theme.angledGradient
 
 const val HOME_SCREEN_ROUTE = "HOME_SCREEN_ROUTE"
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    viewModel : HomeViewModel = hiltViewModel(),
     onClickAdd: () -> Unit
 ) {
+
+    val uiState = viewModel.uiState.collectAsState()
+
     var dialogState by remember {
         mutableStateOf(false)
     }
@@ -59,9 +69,9 @@ fun HomeScreen(
                     contentDescription = null
                 )
             }
-            MainCard()
+            MainCard(viewModel)
             Transaction()
-            TransactionList()
+            TransactionList(uiState)
         }
         BottomNav(
             modifier = Modifier
@@ -78,8 +88,30 @@ private fun DefaultPreview() {
     HomeScreen {}
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainCard() {
+fun MainCard(viewModel: HomeViewModel){
+    val uiState = viewModel.uiState.collectAsState()
+    val items = uiState.value.monthList
+    val pagerState = rememberPagerState()
+    LaunchedEffect(pagerState){
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            viewModel.setSelectedMonth(page)
+        }
+    }
+    HorizontalPager(
+        pageCount = items.size,
+        pageSpacing = 24.dp,
+        state = pagerState
+    ) { page ->
+        val item = items[page]
+        MainCardItem(item = item, uiState)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MainCardItem(item: MonthWithYear, uiState: State<HomeUiState>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,7 +125,7 @@ fun MainCard() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Total Expanses",
+            text = "Total Expanses ${item.month}/${item.year}",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium
         )
@@ -104,7 +136,7 @@ fun MainCard() {
                 style = MaterialTheme.typography.headlineMedium
             )
             Text(
-                text = "10.000",
+                text = uiState.value.getTotal().toString().formatCurrencies(),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium
             )
@@ -131,24 +163,35 @@ fun Transaction() {
 }
 
 @Composable
-fun TransactionList() {
+fun TransactionList(uiState: State<HomeUiState>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        repeat(10) {
+        uiState.value.expensesList?.expenses?.forEachIndexed { _, expenses ->
             item {
-                TransactionItem()
+                TransactionItem(expenses = expenses)
             }
+        }
+        item {
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TransactionItem() {
-    Column {
+fun TransactionItem(modifier: Modifier = Modifier, expenses: Expenses) {
+
+    Column(
+        modifier = modifier.combinedClickable(
+            onClick = {},
+            onLongClick = { Log.d("javaClass.simpleName", "MainCardItem: ${expenses.id}") }
+            // TODO: show editor pop up
+        )
+    ) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .background(
                     color = Color.White,
@@ -169,7 +212,7 @@ fun TransactionItem() {
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
-                    text = "Food",
+                    text = expenses.title,
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -178,11 +221,11 @@ fun TransactionItem() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "-Rp. 10.000",
+                    text = "-Rp. ${expenses.amount.formatCurrencies()}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Today",
+                    text = expenses.timeTitle,
                     style = MaterialTheme.typography.labelSmall
                 )
             }

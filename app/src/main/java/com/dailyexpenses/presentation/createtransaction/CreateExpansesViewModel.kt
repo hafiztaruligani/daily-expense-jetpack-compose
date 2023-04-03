@@ -19,14 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateExpansesViewModel @Inject constructor(
     private val tagRepository: TagRepository,
-    private val expensesRepository: ExpensesRepository
+    private val expensesRepository: ExpensesRepository,
+    private val mCalendar: Calendar
 ) : ViewModel() {
-
-    init {
-        getTagList()
-    }
-
-    private val mCalendar by lazy { Calendar.getInstance() }
 
     private val year: Int by lazy { mCalendar.get(Calendar.YEAR) }
     private val month: Int by lazy { mCalendar.get(Calendar.MONTH) + 1 }
@@ -41,6 +36,10 @@ class CreateExpansesViewModel @Inject constructor(
         )
     )
     val uiState: StateFlow<CreateExpansesUiState> = _uiState
+
+    init {
+        getTagList()
+    }
 
     val selectedTag = MutableStateFlow(mutableListOf<Tag>())
 

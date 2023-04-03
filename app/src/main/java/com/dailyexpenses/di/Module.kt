@@ -12,6 +12,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.Calendar
 import javax.inject.Singleton
 
 @Module
@@ -47,5 +48,10 @@ object Module {
     fun expensesRepository(
         expensesDao: ExpensesDao
     ): ExpensesRepository = ExpensesRepositoryImpl(expensesDao)
+
+
+    @Provides
+    @Singleton
+    fun calendar() = Calendar.getInstance()
 
 }

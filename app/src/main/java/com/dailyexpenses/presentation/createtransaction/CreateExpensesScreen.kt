@@ -116,6 +116,7 @@ fun CreateExpensesScreen(
                 .align(Alignment.BottomCenter)
         ) {
             viewModel.save()
+            onClickClose.invoke()
         }
     }
 }

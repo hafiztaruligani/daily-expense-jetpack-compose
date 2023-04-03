@@ -1,7 +1,7 @@
 package com.dailyexpenses.domain.model
 
 import com.dailyexpenses.data.local.room.entity.ExpensesEntity
-import java.util.UUID
+import java.util.*
 
 data class Expenses(
     val id: String = UUID.randomUUID().toString(),
@@ -13,6 +13,9 @@ data class Expenses(
     val month: Int = 0,
     val year: Int = 0,
 ) {
+
+    var timeTitle: String = "$day/$month/$year"
+
     fun toEntity() = ExpensesEntity(
         id,
         amount,
