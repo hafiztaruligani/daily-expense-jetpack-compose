@@ -69,7 +69,7 @@ fun HomeScreen(
                     contentDescription = null
                 )
             }
-            MainCard(viewModel)
+            MainCard(viewModel, uiState)
             Transaction()
             TransactionList(uiState)
         }
@@ -90,8 +90,7 @@ private fun DefaultPreview() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainCard(viewModel: HomeViewModel){
-    val uiState = viewModel.uiState.collectAsState()
+fun MainCard(viewModel: HomeViewModel, uiState: State<HomeUiState>){
     val items = uiState.value.monthList
     val pagerState = rememberPagerState()
     LaunchedEffect(pagerState){

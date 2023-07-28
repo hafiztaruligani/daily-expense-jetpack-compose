@@ -8,9 +8,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dailyexpenses.presentation.ButtonGradient
 import com.dailyexpenses.presentation.CloseButton
 import com.dailyexpenses.presentation.CustomChip
@@ -38,15 +41,13 @@ import java.util.*
 
 const val CREATE_EXPENSES_SCREEN_ROUTE = "CREATE_EXPENSES_SCREEN_ROUTE"
 
-@OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CreateExpensesScreen(
     onClickClose: () -> Unit,
     viewModel: CreateExpansesViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-
-    Log.d("cr", "CreateExpensesScreen: ${uiState.value.tagList}")
+    val scrollState = rememberScrollState()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     if (uiState.value.needDatePicker) DatePicker(uiState.value, viewModel)
     if (uiState.value.error.isNotBlank())
@@ -58,7 +59,8 @@ fun CreateExpensesScreen(
             .background(
                 color = Color(android.graphics.Color.parseColor("#edf1f7"))
             )
-            .padding(24.dp),
+            .padding(24.dp)
+            .verticalScroll(scrollState),
     ) {
 
         Column(

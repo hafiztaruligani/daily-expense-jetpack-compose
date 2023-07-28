@@ -1,5 +1,6 @@
 package com.dailyexpenses.presentation.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dailyexpenses.domain.model.Expenses
@@ -46,15 +47,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getMonth() = viewModelScope.launch {
+    private fun getMonth() = viewModelScope.launch {
         expensesRepository.getAllMonth().collect {
             _uiState.value = uiState.value.copy(monthList = it)
+            if (it.isNotEmpty()){
+                setSelectedMonth(it.size-1)
+            }
         }
     }
 
 
-    fun getExpensesByMonth(month: Int, year: Int) = viewModelScope.launch{
+    private fun getExpensesByMonth(month: Int, year: Int) = viewModelScope.launch{
         expensesRepository.getExpensesByMonth(month, year).collect {
+            Log.d(javaClass.simpleName, "testtt getExpensesByMonth: ${it.month}")
             val currentYear = calendar.get(Calendar.YEAR)
             val currentMonth = calendar.get(Calendar.MONTH) +1
             val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
